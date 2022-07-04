@@ -39,10 +39,16 @@ const gridManagement = {
     }
     return result;
   },
-  calcPopulation: function (CELL_DEAD_CHAR, CELL_LIVE_CHAR, gridSize, initialPopulation) {
+  calcInitPopulation: function (CELL_DEAD_CHAR, CELL_LIVE_CHAR, gridSize, initialPopulation) {
     // strips initalPopulation from all char except the one that indicate dead or live cells
     // if there are not enough elements throw error
-    var result = [];
+  	console.log("calcInitPopulation - given pupulation data\n",initialPopulation);
+ 		var result = {
+      population: [],
+      live: []
+    }
+    var population = [];
+  	var live = [];
     var DEAD_CHAR = CELL_DEAD_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     var LIVE_CHAR = CELL_LIVE_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     var regex = new RegExp("("+DEAD_CHAR+"|"+LIVE_CHAR+")", 'gm');
@@ -54,15 +60,23 @@ const gridManagement = {
     let partialCount = 0;
     var partialRes = [];
     for ( var i = 0; i < found.length; i++ ) {
+      var el = found[i];
       if ( partialCount == gridSize[1] ) {
-        result.push(partialRes);
+        population.push(partialRes);
         partialRes = [];
         partialCount = 0
       }
-      partialRes.push(found[i])
+      if ( el == CELL_LIVE_CHAR ) {
+        console.log("Got a live cell at", [partialCount, (gridSize[0] - 1 - population.length)]);
+        // offset 1 on y, since y starts with 0
+        live.push([partialCount, (gridSize[0] - 1 - population.length)]);
+      }
+      partialRes.push(el)
       partialCount++;
     }
-    result.push(partialRes);
+    population.push(partialRes);
+  	result.population = population;
+  	result.live = live;
     return result;
   }
 }
