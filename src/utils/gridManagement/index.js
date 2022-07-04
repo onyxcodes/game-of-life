@@ -38,6 +38,33 @@ const gridManagement = {
       ) result.push(possibleNeighbour)
     }
     return result;
+  },
+  calcPopulation: function (CELL_DEAD_CHAR, CELL_LIVE_CHAR, gridSize, initialPopulation) {
+    // strips initalPopulation from all char except the one that indicate dead or live cells
+    // if there are not enough elements throw error
+    var result = [];
+    var DEAD_CHAR = CELL_DEAD_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var LIVE_CHAR = CELL_LIVE_CHAR.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    var regex = new RegExp("("+DEAD_CHAR+"|"+LIVE_CHAR+")", 'gm');
+  	var found = pop.match(regex) || [];
+  	console.log("calPopulation", found);
+    var gridLength = gridSize[0] * gridSize[1];
+    
+    if ( gridLength !== found.length ) throw new Error("Error while parsing initial population");
+    let partialCount = 0;
+    var partialRes = [];
+    for ( var i = 0; i < found.length; i++ ) {
+      if ( partialCount == gridSize[1] ) {
+        result.push(partialRes);
+        partialRes = [];
+        partialCount = 0
+      }
+      partialRes.push(found[i])
+      partialCount++;
+    }
+    result.push(partialRes);
+    return result;
+  }
 }
 
 export default gridManagement;
