@@ -62,19 +62,19 @@ const gridManagement = {
     for ( var i = 0; i < found.length; i++ ) {
       var el = found[i];
       if ( partialCount == gridSize[1] ) {
-        population.push(partialRes);
+        population.unshift(partialRes);
         partialRes = [];
         partialCount = 0
       }
       if ( el == CELL_LIVE_CHAR ) {
-        console.log("Got a live cell at", [partialCount, (gridSize[0] - 1 - population.length)]);
         // offset 1 on y, since y starts with 0
+        console.log("Got a live cell at", [partialCount, (gridSize[0] - 1 - population.length)]);
         live.push([partialCount, (gridSize[0] - 1 - population.length)]);
       }
       partialRes.push(el)
       partialCount++;
     }
-    population.push(partialRes);
+    population.unshift(partialRes);
   	result.population = population;
   	result.live = live;
     return result;
