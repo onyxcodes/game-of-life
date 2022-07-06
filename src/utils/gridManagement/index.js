@@ -1,4 +1,14 @@
 // TODO: consider changin to class
+const relativePositions = {
+  0: [0, +1],
+  1: [0, -1],
+  2: [-1, +1],
+  3: [+1, -1],
+  4: [-1, 0],
+  5: [+1, 0],
+  6: [+1, +1],
+  7: [-1, -1]
+}
 
 const gridManagement = {
   getNeighbourCoordinates: function(gridSize, coordinates) {
@@ -11,16 +21,8 @@ const gridManagement = {
       xMax = gridSize[1];
   	console.log("getNeighbourCoordinates - given x boundary of "+xMax+" and y boundary of "+yMax);
     // at most we got 8 cases, relative to given point:
-    const neighbourPositions = [
-      [0, +1],
-      [0, -1],
-      [-1, +1],
-      [+1, -1],
-      [-1, 0],
-      [+1, 0],
-      [+1, +1],
-      [-1, -1]
-    ];
+    const neighbourPositions = Object.keys(relativePositions);
+    // neighbourPositions[  ]
     for ( let i = 0; i < neighbourPositions.length; i++) {
       // loop through each neighbour cases and check if it's in the grid boundaries
       // or rather check that the resulting x coordinate (a) is: xMin <= a <= xMax
@@ -78,7 +80,68 @@ const gridManagement = {
   	result.population = population;
   	result.live = live;
     return result;
-  }
+  },
+  cellUpdate: function(population, gridSize, cellCoordinates, cellState, avoidCheckRelCoords) {
+    var neighbourCellsCoords = this.getNeighbourCoordinates(gridSize, cellCoordinates, avoidCheckRelCoords);
+    console.log("Got neighbour cells:", neighbourCellsCoords);
+    var liveNeighbours = 0;
+    var neighbourCellStatesNum = neighbourCellsCoords.reduce(
+      (previousValue, currentValue) => {
+        console.log("cellUpdate -  got neigh")
+        previousValue + currentValue
+      },
+      initialValue
+    );
+    for ( var k = 0; k < neighbourCellsCoords.length; k++ ) {
+      var neighbourCellCords = neighbourCellsCoords[k];
+      console.log("cellUpdate - Got neighbour cell coords", neighbourCellCords);
+      array1.reduce(
+        (previousValue, currentValue) => previousValue + currentValue,
+        initialValue
+      );
+      var neighbourCellState = population[neighbourCellCords[1]][neighbourCellCords[0]];
+      console.log("cellUpdate - Got neighbour cell state", neighbourCellState);
+      liveNeighbours += neighbourCellState;
+    }
+    console.log("cellUpdate - Got alive neighbours", liveNeighbours);
+    if ( cellState && liveNeighbours < 2 ) cellState = 0;
+    else if ( cellState && (liveNeighbours == 2 || liveNeighbours == 3) ) cellState = 1;
+    else if ( cellState && liveNeighbours > 3 ) cellState = 0;
+    else if ( !cellState && liveNeighbours == 3 ) cellState = 1;
+    else throw new Error("Unexpected case");
+    return cellState;
+  },
+  calcRelativePosition = function( cell1Cords, cell2Cords ) {
+    var position = [ cell1Cords[0] - cell2Cords[1], cell1Cords[1] - cell2Cords[1] ]; 
+    switch ( position[0]+" | "+position[1] ) {
+      case "0, 1":
+        return 0        
+        break;
+      case "0, -1":
+        return 1
+        break;
+      case "-1, 1":
+        return 2
+        break;
+      case "1, -1":
+        return 3
+        break;
+      case "-1, 0":
+        return 4
+        break;
+      case "1, 0":
+        return 5
+        break;
+      case "1, 1":
+        return 6
+        break;
+      case "-1, -1":
+        return 7
+        break;
+      default:
+        return false;
+    }
+  } 
 }
 
 export default gridManagement;
