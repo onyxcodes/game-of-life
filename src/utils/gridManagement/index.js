@@ -112,6 +112,12 @@ const relativePositions = {
       else throw new Error("Unexpected case");
       return cellState;   
     },
+    calcPosition: function( cellCoords, relativePos ) {
+      console.log("calcPosition - given cell coordinates and relative position", [cellCoords, relativePos] );
+      var result = [ cellCoords[0] + relativePos[0], cellCoords[1] + relativePos[1] ];
+      console.log("calcPosition - resulting position", result);
+      return result;
+    },
     calcRelativePosition: function( cell1Cords, cell2Cords ) {
       console.log("calcRelativePosition - calculation position between", [ cell1Cords, cell2Cords] );
       var position = [ cell1Cords[0] - cell2Cords[0], cell1Cords[1] - cell2Cords[1] ]; 
@@ -145,27 +151,70 @@ const relativePositions = {
           return false;
       }
     }, 
+    getCommonNeighbour: function ( population, gridSize, cellCoords, cellCoordsA, cellCoordsB, relationA, relationB ) {
+      console.log("calcRelativePosition  - consider checking if they have a common neighbour", [cellCoords, cellCoordsA, cellCoordsB]);
+      console.log("calcRelativePosition - for sure it's not one of these", [relationA, relationB]);
+      var msRelPositions = relativePositions;
+      msRelPositions[relationA] = undefined;
+      msRelPositions[relationB] = undefined;
+      const neighbourPositions = Object.values(msRelPositions);
+      var isNeighbourA = false;
+      for (var i = 0; i < neighbourPositions.length; i++) {
+        debugger;
+        if ( neighbourPositions[i] ) {
+          var neighbourCoords = this.calcPosition(cellCoords, neighbourPositions[i]);
+          if ( isNeighbourA ) {
+            var isNeighbourB = this.calcRelativePosition(cellCoordsB, neighbourCoords);
+            console.log("calcRelativePosition - is it neighbour with cell B", { result: isNeighbourB, cells: [cellCoordsB, neighbourCoords]});
+
+          } else {
+            isNeighbourA = this.calcRelativePosition(cellCoordsA, neighbourCoords);
+            console.log("calcRelativePosition - is it neighbour with cell A", { result: isNeighbourA, cells: [cellCoordsA, neighbourCoords]});
+          }
+        }
+      }
+    },
     calcNextGeneration: function(population, gridSize) {
         console.log("calcNextGeneration: given population", population);
         var livePopulationCoords = Object.keys(population.live);
         var k = 0;
-        var isRelative = false;
+        var isRelative1 = false,
+          isRelative2 = false;
         var liveNeighbours = 0;
+        var relativeCellCoords1 = null,
+          relativeCellCoords2 = null;
         for ( var i = 0; i < livePopulationCoords.length; i++ ) {
             var liveCellCoords = livePopulationCoords[i];
             liveCellCoords = [Number(liveCellCoords.split(",")[0]),Number(liveCellCoords.split(",")[1])];
             console.log("calcNextGeneration - got live cell chords", liveCellCoords);
             var willLive = this.cellUpdate(population, gridSize, liveCellCoords, 1)
             console.log("calcNextGeneration - willl it live?", willLive);
-            if ( isRelative && willLive ) liveNeighbours++;
+            if ( isRelative1 && willLive ) liveNeighbours++;
             console.log("calcNextGeneration - got live neighbours", liveNeighbours);
             k = i+1;
-            var nextLiveCellCoords = livePopulationCoords[k];
-            if (nextLiveCellCoords) {
-              nextLiveCellCoords = [Number(nextLiveCellCoords.split(",")[0]),Number(nextLiveCellCoords.split(",")[1])];
-              isRelative = this.calcRelativePosition(liveCellCoords, nextLiveCellCoords );
-              console.log("calcNextGeneration - this two live cells are neighbours?", isRelative);
+            if ( isRelative1 ) {
+              if (relativeCellCoords1) {
+                relativeCellCoords2 = livePopulationCoords[i-2];
+                if ( relativeCellCoords2 ) {
+                  relativeCellCoords2 = [Number(relativeCellCoords2.split(",")[0]),Number(relativeCellCoords2.split(",")[1])];
+                  isRelative2 = this.calcRelativePosition(liveCellCoords, relativeCellCoords2 );
+                  console.log("calcNextGeneration - current and next cells are neighbours?", isRelative2);
+                  if (!isRelative2) relativeCellCoords2 = null;
+                  else {
+                    this.getCommonNeighbour(population, gridSize, liveCellCoords, relativeCellCoords1, relativeCellCoords2, isRelative1, isRelative2)
+                  }
+                }
+              } 
+            } else {
+              relativeCellCoords1 = livePopulationCoords[k];
+              if ( relativeCellCoords1 && !isRelative1 ) {
+                relativeCellCoords1 = [Number(relativeCellCoords1.split(",")[0]),Number(relativeCellCoords1.split(",")[1])];
+                isRelative1 = this.calcRelativePosition(liveCellCoords, relativeCellCoords1 );
+                console.log("calcNextGeneration - current and next cells are neighbours?", isRelative1);
+                if (!isRelative1) relativeCellCoords1 = null; 
+              } 
             }
+            
         }
     }
   }
