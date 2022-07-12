@@ -6,14 +6,14 @@ import {
   Route,
 } from "react-router-dom";
 import { connect } from "react-redux";
-import gridManagement from "../../utils/gridManager";
+import gridManagement from "../../utils/gridManagement/index.js";
 
 var population = gridManagement.calcInitPopulation('*', '#', [4,8], "********"+
-                                                    "***#****"+
                                                     "**##****"+
+                                                    "*###****"+
                                                     "********");
 console.log("Got population",population);
-gridManagement.cellUpdate(population, [4,8], [4,1], 1, null)
+gridManagement.calcNextGeneration(population, [4,8])
 
 class App extends Component {
 
