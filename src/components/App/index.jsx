@@ -6,15 +6,13 @@ import {
   Route,
 } from "react-router-dom";
 import { connect } from "react-redux";
-import gridManagement from "../../utils/gridManagement/index.js";
+import GridManagement from "../../utils/gridManagement/index.tsx";
 
-var population = gridManagement.calcInitPopulation('*', '#', [4,8], "********"+
+var grid = new GridManagement([4,8], "********"+
                                                     "**##****"+
                                                     "*###****"+
-                                                    "********");
-console.log("Got population",population);
-gridManagement.calcNextGeneration(population, [4,8])
-
+                                                    "********",'*', '#')
+grid.calcNextGeneration();
 class App extends Component {
 
   render() {
