@@ -30,13 +30,7 @@ class App extends Component {
     "*",
     "#"
   );
-  //grid.calcNextGeneration();
-
-  componentDidMount() {
-    console.log("Called componentDidMount");
-    this.updateGridPopulation();
-  }
-
+  
   updateGridPopulation(prevPopulation) {
     if (this.grid) {
       var population = [...this.grid.getPopulation()];
@@ -45,6 +39,11 @@ class App extends Component {
         population: population,
       }));
     }
+  }
+
+  componentDidMount() {
+    console.log("Called componentDidMount");
+    this.updateGridPopulation();
   }
 
   calculateNextGen() {
@@ -106,13 +105,12 @@ class App extends Component {
         }
         if (!errorMessages.length)
           this.setState({ generationNum: generationNum });
-        else this.setState({ errorMessages: errorMessages });
-      } else this.setState({ errorMessages: errorMessages });
-    }
+      }
+    } else errorMessages.push("Uploaded file has no text.");
+    this.setState({ errorMessages: errorMessages });
   }
 
   uploadFile(value) {
-    console.log("App - Uploading file..", value);
     if (value) {
       var fileR = new FileReader();
       fileR.addEventListener("load", (e) => this.readFile(e));
