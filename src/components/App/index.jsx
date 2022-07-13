@@ -10,11 +10,13 @@ import GridManagement from "../../utils/gridManagement/index.tsx";
 import Grid from "../Grid"
 import ActionBar from "../ActionBar"
 
-  const View = ({population, calcFn}) => {
+  const View = ({prevPopulation, population, fileFn, calcFn}) => {
     
     return <div>
-      <Grid population={population} />
-      <ActionBar calcNextGen={calcFn} />
+      <Grid id="prev" population={prevPopulation} />
+      <hr/>
+      <Grid id="current" population={population} />
+      <ActionBar uploadFile={fileFn} calcNextGen={calcFn} />
     </div>
       
   }
@@ -22,10 +24,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      population: [
-    [0, 0, 0, 0, 1],
-    [1, 1, 0, 0, 0]
-  ]
+      population: [],
+      prevPopulation: []
     }
   }
 grid = new GridManagement([4,8], "********"+
@@ -35,25 +35,45 @@ grid = new GridManagement([4,8], "********"+
     //grid.calcNextGeneration();
 
   componentDidMount()   {
-    var population = this.grid.getPopulation();
-    this.setState({ population: population })
+    console.log("Called componentDidMount");
+    var population = [... this.grid.getPopulation()];
+    var prevPopulation = JSON.parse(JSON.stringify(population));
+    this.setState({ 
+      population: population,
+      prevPopulation: prevPopulation
+    })
   }
 
   calculateNextGen() {
-    console.log("App - calling calculate next gen")
+    console.log("App - calling calculate next gen");
+    var prevPopulation  = JSON.parse(JSON.stringify(this.state.population));
+    console.log("App - Got prev population", prevPopulation);
     this.grid.calcNextGeneration();
-    var population = this.grid.getPopulation();
-    this.setState({ population: population })
+    var population = [... this.grid.getPopulation()];
+    console.log("App - Got next population", population);
+    this.setState( (state) => ({ 
+        prevPopulation: prevPopulation,
+        population: population
+      })
+    );
+   
   }
 
-
+  uploadFile() {
+    console.log("App - Uploading file..");
+  }
   
   render() {
     return (
       <Router>
         <Routes>
           <Route exact path="/" 
-            element={<View calcFn={() => this.calculateNextGen()} population={this.state.population} />}
+            element={
+              <View 
+                calcFn={() => this.calculateNextGen()} 
+                fileFn={() => this.uploadFile()}
+                prevPopulation={this.state.prevPopulation} 
+                population={this.state.population} />}
           />;
         </Routes>
       </Router>

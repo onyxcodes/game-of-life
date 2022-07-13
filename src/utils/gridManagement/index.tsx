@@ -164,10 +164,38 @@ class GridManagement {
         else if (cellState && (liveNeighbours == 2 || liveNeighbours == 3)) cellState = 1;
         else if (cellState && liveNeighbours > 3) cellState = 0;
         else if (!cellState && liveNeighbours == 3) cellState = 1;
-        else throw new Error("Unexpected case");
+        else {
+          console.log("Unexpected case", [cellState, liveNeighbours]);
+          cellState = 0; // should be alredy like that
+        }
         return Boolean(cellState);
     }
-
+    getNeighboursOfLiveCells(): {
+      [key: string]: boolean
+    } {
+      var result: {
+        [key: string]: boolean
+      } = {};
+      var liveCellCoordsKeys: string[] = Object.keys(this.live); 
+      for ( var i = 0; i < liveCellCoordsKeys.length; i++ ) {
+        var liveCellCoordsKey = liveCellCoordsKeys[i];
+        var liveCellCoords: [number, number] = [Number(liveCellCoordsKey.split(",")[0]), Number(liveCellCoordsKey.split(",")[1])];
+        var neighbourCellsCoords = this.getNeighbourCoordinates(liveCellCoords);
+        for ( var k = 0; k < neighbourCellsCoords.length; k++ ) {
+          var neighbourCellCoords = neighbourCellsCoords[k];
+          var neighbourCellCoordsKey = neighbourCellCoords[0]+","+neighbourCellCoords[1];
+          if ( this.live[neighbourCellCoordsKey] ) {
+            // Neighbour cell is already tracked in live cells list, will skip checking
+            break
+          }
+          // Attempt to add it to list of neighbours that are going to be checked
+          result[neighbourCellCoordsKey] = false;
+        }
+      }
+      console.log("Got list of neighoburing to live cells cells to check", result);
+      return result;
+    }
+  
     calcNextGeneration(): void {
         logger.info({
             "population": this.population
@@ -179,7 +207,7 @@ class GridManagement {
         } = Object.create(this.live);
         for (var i = 0; i < livePopulation.length; i++) {
             var liveCellCoordsKey: string = livePopulation[i];
-            var liveCellCoords: [number, number] = [Number(liveCellCoordsKey.split(",")[0]), Number(liveCellCoordsKey.split(",")[1])]
+            var liveCellCoords: [number, number] = [Number(liveCellCoordsKey.split(",")[0]), Number(liveCellCoordsKey.split(",")[1])];
             logger.debug({
                 "coordinates": liveCellCoords
             }, "calcNextGeneration - got live cell chords");
@@ -191,6 +219,22 @@ class GridManagement {
             console.log("Got actual position in population", [liveCellCoords[1]],[liveCellCoords[0]]);
             currentLivePopulation[liveCellCoordsKey] = willLive;
         }
+        var neighbourCells = this.getNeighboursOfLiveCells();
+        var neighbourCellsKeys = Object.keys(neighbourCells);
+        for ( var i = 0; i < neighbourCellsKeys.length; i++ ) {
+          var cellCoordsKey: string = neighbourCellsKeys[i];
+          var cellCoords: [number, number] = [Number(cellCoordsKey.split(",")[0]), Number(cellCoordsKey.split(",")[1])];
+          logger.debug({
+              "coordinates": cellCoords
+          }, "calcNextGeneration - got live cell chords");
+          var willLive = this.cellUpdate(cellCoords, 0)
+          logger.info({
+              "coordinates": cellCoords,
+              "live": willLive
+          }, "calcNextGeneration - willl it live?");
+          console.log("Got actual position in population", [cellCoords[1]],[cellCoords[0]]);
+          currentLivePopulation[cellCoordsKey] = willLive;
+        }
         var currentLivePopulationKeys: string[] = Object.keys(currentLivePopulation);
         for ( var i = 0; i < currentLivePopulationKeys.length; i++) {
           var liveCellCoordsKey: string = currentLivePopulationKeys[i];
@@ -198,7 +242,7 @@ class GridManagement {
           if ( currentLivePopulation[liveCellCoordsKey]) {
             // Check if it is active, if not remove it from object that keeps trace of active cells
             this.live[liveCellCoordsKey] = currentLivePopulation[liveCellCoordsKey];
-          } else delete this.live[liveCellCoordsKey];
+          } else if ( this.live.hasOwnProperty(liveCellCoordsKey) ) delete this.live[liveCellCoordsKey];
           
           this.population[liveCellCoords[1]][liveCellCoords[0]] = currentLivePopulation[liveCellCoordsKey];;
         }

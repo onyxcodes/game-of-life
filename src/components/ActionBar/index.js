@@ -9,7 +9,7 @@ class ActionBar extends Component {
     return(
       <div>
         <input type="file"/>
-        <input type="submit" value="Upload"></input><br/>
+        <input type="submit" value="Upload" onClick={(e) => this.props.uploadFile()}></input><br/>
         <input type="button" onClick={(e) => this.props.calcNextGen()} value="Calculate next gen"></input>
       </div>
     );
