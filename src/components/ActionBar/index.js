@@ -1,5 +1,13 @@
 import React, { useRef, Component } from "react";
 
+const defaultText =
+  "Generation 3:\n" +
+  "4 8\n" +
+  "* * * * * * * *\n" +
+  "* * * * # * * *\n" +
+  "* * * # # * * *\n" +
+  "* * * * * * * *\n";
+
 class ActionBar extends Component {
   constructor(props) {
     super(props);
@@ -20,7 +28,6 @@ class ActionBar extends Component {
   }
 
   render() {
-    console.log("ActionBar - got text preview", this.props.textPreview);
     return (
       <div>
         <input
@@ -41,7 +48,10 @@ class ActionBar extends Component {
           value="Calculate next gen"
         ></input>
         <br />
-        <textarea value={this.props.textPreview} readOnly></textarea>
+        <textarea
+          value={this.props.textPreview || defaultText}
+          readOnly
+        ></textarea>
       </div>
     );
   }

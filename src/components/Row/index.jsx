@@ -6,7 +6,6 @@ class Row extends Component {
     super(props)
   }
   render() {
-    console.log("Row - Got props (value)", this.props.value);
     if ( this.props.value ) {
       const cells = this.props.value.map( (cellState, index) => <Cell key={index} status={cellState}/>
       )

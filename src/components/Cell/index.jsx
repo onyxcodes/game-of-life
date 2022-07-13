@@ -5,7 +5,6 @@ class Cell extends Component {
     super(props)
   }
   render() {
-    console.log("Cell - Got this props (status)", this.props.status);
     return(
       <div style={{ backgroundColor: this.props.status ? "green" : "grey" }}>#</div>
     )

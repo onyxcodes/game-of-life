@@ -165,7 +165,7 @@ class GridManagement {
         else if (cellState && liveNeighbours > 3) cellState = 0;
         else if (!cellState && liveNeighbours == 3) cellState = 1;
         else {
-          console.log("Unexpected case", [cellState, liveNeighbours]);
+          // console.log("Unexpected case", [cellState, liveNeighbours]);
           cellState = 0; // should be alredy like that
         }
         return Boolean(cellState);
