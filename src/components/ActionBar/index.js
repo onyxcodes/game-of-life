@@ -1,16 +1,47 @@
-import React, { Component } from "react";
+import React, { useRef, Component } from "react";
 
 class ActionBar extends Component {
   constructor(props) {
-    super(props)
+    super(props);
+    this.state = {
+      filePresent: false,
+    };
+  }
+
+  checkFile(e) {
+    var testFileExtension = new RegExp(".txt", "i");
+    if (e.target.value && testFileExtension.exec(e.target.value)) {
+      console.log("ActionBar - File is ok");
+      this.setState({ filePresent: true });
+    } else {
+      this.setState({ filePresent: false });
+      alert("File is not a .txt");
+    }
   }
 
   render() {
-    return(
+    console.log("ActionBar - got text preview", this.props.textPreview);
+    return (
       <div>
-        <input type="file"/>
-        <input type="submit" value="Upload" onClick={(e) => this.props.uploadFile()}></input><br/>
-        <input type="button" onClick={(e) => this.props.calcNextGen()} value="Calculate next gen"></input>
+        <input
+          type="file"
+          ref="fileInput"
+          onChange={(e) => this.checkFile(e)}
+        />
+        <input
+          type="submit"
+          disabled={!this.state.filePresent}
+          value="Upload"
+          onClick={(e) => this.props.uploadFile(this.refs.fileInput)}
+        ></input>
+        <br />
+        <input
+          type="button"
+          onClick={(e) => this.props.calcNextGen()}
+          value="Calculate next gen"
+        ></input>
+        <br />
+        <textarea value={this.props.textPreview} readOnly></textarea>
       </div>
     );
   }
