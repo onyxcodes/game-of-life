@@ -5,7 +5,7 @@ class GridManagement {
     initPopulation: string;
     deadChar: string;
     liveChar: string;
-    population ? : number[][];
+    population: boolean[][];
     live: {
         [key: string]: boolean
     } = {};
@@ -76,7 +76,7 @@ class GridManagement {
     }
 
     calcInitGeneration(): {
-        population: number[][],
+        population: boolean[][],
         live: {
             [key: string]: boolean
         }
@@ -89,7 +89,7 @@ class GridManagement {
             "population": initialPopulation
         }, "calcInitGeneration - given pupulation data\n", );
         var result: {
-            population: number[][],
+            population: boolean[][],
             live: {
                 [key: string]: boolean
             }
@@ -97,7 +97,7 @@ class GridManagement {
             population: [],
             live: {}
         }
-        var population: number[][] = [];
+        var population: boolean[][] = [];
         var live: {
             [key: string]: boolean
         } = {};
@@ -110,7 +110,7 @@ class GridManagement {
 
         if (gridLength !== found.length) throw new Error("Error while parsing initial population");
         let partialCount: number = 0;
-        var partialRes: number[] = [];
+        var partialRes: boolean[] = [];
         for (var i = 0; i < found.length; i++) {
             var el = found[i];
             if (partialCount == gridSize[1]) {
@@ -124,8 +124,8 @@ class GridManagement {
                     "coordinates": [partialCount, (gridSize[0] - 1 - population.length)]
                 }, "Got a live cell");
                 live[partialCount + "," + (gridSize[0] - 1 - population.length)] = true;
-                partialRes.push(1)
-            } else partialRes.push(0)
+                partialRes.push(true)
+            } else partialRes.push(false)
             partialCount++;
         }
         population.unshift(partialRes);
@@ -145,7 +145,7 @@ class GridManagement {
         for (var i = 0; i < neighbourCellsCoords.length; i++) {
             var neighbourCellCoords: number[] = neighbourCellsCoords[i];
             var neighbourCellCoordsKey: string = neighbourCellCoords[0] + "," + neighbourCellCoords[1];
-            logger.debug({
+            logger.info({
                 "coodinates": neighbourCellCoordsKey,
                 "livePopulation": this.live
             }, "cellUpdate - checking if neighbour is alive");
@@ -157,7 +157,8 @@ class GridManagement {
             }
         }
         logger.info({
-            "count": liveNeighbours
+            "count": liveNeighbours,
+            "coordinates": cellCoordinates
         }, "cellUpdate - Got number of alive neighbours");
         if (cellState && liveNeighbours < 2) cellState = 0;
         else if (cellState && (liveNeighbours == 2 || liveNeighbours == 3)) cellState = 1;
@@ -173,6 +174,9 @@ class GridManagement {
         }, "calcNextGeneration: given population");
         var livePopulation: string[] = Object.keys(this.live)
         // var livePopulation: string[] = (Object.keys(this.live) as (keyof typeof string)[]);
+        var currentLivePopulation: {
+          [key: string]: boolean
+        } = Object.create(this.live);
         for (var i = 0; i < livePopulation.length; i++) {
             var liveCellCoordsKey: string = livePopulation[i];
             var liveCellCoords: [number, number] = [Number(liveCellCoordsKey.split(",")[0]), Number(liveCellCoordsKey.split(",")[1])]
@@ -184,9 +188,25 @@ class GridManagement {
                 "coordinates": liveCellCoords,
                 "live": willLive
             }, "calcNextGeneration - willl it live?");
-
+            console.log("Got actual position in population", [liveCellCoords[1]],[liveCellCoords[0]]);
+            currentLivePopulation[liveCellCoordsKey] = willLive;
+        }
+        var currentLivePopulationKeys: string[] = Object.keys(currentLivePopulation);
+        for ( var i = 0; i < currentLivePopulationKeys.length; i++) {
+          var liveCellCoordsKey: string = currentLivePopulationKeys[i];
+          var liveCellCoords: [number, number] = [Number(liveCellCoordsKey.split(",")[0]), Number(liveCellCoordsKey.split(",")[1])];
+          if ( currentLivePopulation[liveCellCoordsKey]) {
+            // Check if it is active, if not remove it from object that keeps trace of active cells
+            this.live[liveCellCoordsKey] = currentLivePopulation[liveCellCoordsKey];
+          } else delete this.live[liveCellCoordsKey];
+          
+          this.population[liveCellCoords[1]][liveCellCoords[0]] = currentLivePopulation[liveCellCoordsKey];;
         }
     }
+
+    getPopulation(): boolean[][] {
+    return this.population;
+  }
 }
 
 export default GridManagement;
