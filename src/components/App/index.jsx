@@ -22,42 +22,40 @@ class App extends Component {
       generationNum: null || 0,
       textPreview: null,
       errorMessages: [],
-      grid = new GridManagement(
+      grid: new GridManagement(
         [4, 8],
         "********" + "**##****" + "*###****" + "********",
         "*",
         "#"
-      );
+      ),
     };
   }
-  
-  
-  updateGridPopulation(prevPopulation) {
-    if (this.state.grid) {
-      var population = [...this.state.grid.getPopulation()];
+
+  updateGridPopulation(grid, prevPopulation) {
+    if (grid) {
+      var population = [...grid.getPopulation()];
       this.setState((state) => ({
         prevPopulation: prevPopulation,
         population: population,
+        grid: grid,
       }));
     }
   }
 
   componentDidMount() {
-    console.log("Called componentDidMount");
-    this.updateGridPopulation();
+    this.updateGridPopulation(this.state.grid);
   }
 
-  calculateNextGen() {
-    var prevPopulation = JSON.parse(JSON.stringify(this.state.population));
-    this.state.grid.calcNextGeneration();
-    this.updateGridPopulation(prevPopulation);
+  calculateNextGen(grid) {
+    var prevPopulation = JSON.parse(JSON.stringify(grid.getPopulation()));
+    var grid = new GridManagement(grid.getSize(), grid.calcNextGeneration());
+    this.updateGridPopulation(grid, prevPopulation);
     this.setState((state) => {
       state.generationNum++;
     });
   }
 
   readFile(e) {
-    console.log("Got text", e.target.result);
     if (e.target.result) {
       this.setState({ textPreview: e.target.result });
       this.parseText(e.target.result);
@@ -68,7 +66,6 @@ class App extends Component {
     var errorMessages = [];
     if (text) {
       var textParsing = text.split("\n");
-
       // First line should have the generation number
       var generationNumVal = textParsing[0];
       // Check if it has correct format
@@ -99,9 +96,8 @@ class App extends Component {
         // population config
         var populationConfig = textParsing.join(" ");
         try {
-          this.setState({ grid: new GridManagement(gridSize, populationConfig)});
-          // this.grid = new GridManagement(gridSize, populationConfig);
-          this.updateGridPopulation();
+          var grid = new GridManagement(gridSize, populationConfig);
+          this.updateGridPopulation(grid);
         } catch (e) {
           errorMessages.push(e);
         }
@@ -126,7 +122,9 @@ class App extends Component {
         <ActionBar
           textPreview={this.state.textPreview}
           uploadFile={(value) => this.uploadFile(value)}
-          calcNextGen={() => this.calculateNextGen()}
+          calcNextGen={() => {
+            this.calculateNextGen(this.state.grid);
+          }}
         />
         {!this.state.errorMessages?.length ? (
           <div>
