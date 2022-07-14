@@ -32,8 +32,8 @@ class App extends Component {
   );
   
   updateGridPopulation(prevPopulation) {
-    if (this.grid) {
-      var population = [...this.grid.getPopulation()];
+    if (this.state.grid) {
+      var population = [...this.state.grid.getPopulation()];
       this.setState((state) => ({
         prevPopulation: prevPopulation,
         population: population,
@@ -48,7 +48,7 @@ class App extends Component {
 
   calculateNextGen() {
     var prevPopulation = JSON.parse(JSON.stringify(this.state.population));
-    this.grid.calcNextGeneration();
+    this.state.grid.calcNextGeneration();
     this.updateGridPopulation(prevPopulation);
     this.setState((state) => {
       state.generationNum++;
@@ -98,7 +98,8 @@ class App extends Component {
         // population config
         var populationConfig = textParsing.join(" ");
         try {
-          this.grid = new GridManagement(gridSize, populationConfig);
+          this.setState({ grid: new GridManagement(gridSize, populationConfig)});
+          // this.grid = new GridManagement(gridSize, populationConfig);
           this.updateGridPopulation();
         } catch (e) {
           errorMessages.push(e);

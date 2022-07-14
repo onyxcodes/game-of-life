@@ -87,7 +87,7 @@ class GridManagement {
         // if there are not enough elements throw error
         logger.info({
             "population": initialPopulation
-        }, "calcInitGeneration - given pupulation data\n", );
+        }, "calcInitGeneration - given pupulation data");
         var result: {
             population: boolean[][],
             live: {
