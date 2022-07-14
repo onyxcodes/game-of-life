@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import "./index.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { connect } from "react-redux";
 import GridManagement from "../../utils/gridManagement/index.tsx";
 import Grid from "../Grid";
 import ActionBar from "../ActionBar";
