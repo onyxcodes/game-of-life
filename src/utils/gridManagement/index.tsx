@@ -214,6 +214,7 @@ class GridManagement {
             var willLive = this.cellUpdate(liveCellCoords, 1)
             logger.info({
                 "coordinates": liveCellCoords,
+                "population": this.population,
                 "live": willLive
             }, "calcNextGeneration - willl it live?");
             console.log("Got actual position in population", [liveCellCoords[1]],[liveCellCoords[0]]);
@@ -230,6 +231,7 @@ class GridManagement {
           var willLive = this.cellUpdate(cellCoords, 0)
           logger.info({
               "coordinates": cellCoords,
+              "population": this.population,
               "live": willLive
           }, "calcNextGeneration - willl it live?");
           console.log("Got actual position in population", [cellCoords[1]],[cellCoords[0]]);
