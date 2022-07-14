@@ -22,14 +22,15 @@ class App extends Component {
       generationNum: null || 0,
       textPreview: null,
       errorMessages: [],
+      grid = new GridManagement(
+        [4, 8],
+        "********" + "**##****" + "*###****" + "********",
+        "*",
+        "#"
+      );
     };
   }
-  grid = new GridManagement(
-    [4, 8],
-    "********" + "**##****" + "*###****" + "********",
-    "*",
-    "#"
-  );
+  
   
   updateGridPopulation(prevPopulation) {
     if (this.state.grid) {
