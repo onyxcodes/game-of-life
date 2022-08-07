@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./index.css";
-import GridManagement from "../../utils/gridManagement/index.tsx";
+import GridManagement from "../../utils/gridManagement";
 import Grid from "../Grid";
 import ActionBar from "../ActionBar";
 
